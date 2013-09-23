@@ -23,14 +23,10 @@
 
 
     playerMove: function(position){
-      this.randomComputerMove();
       this.recordMove(position, 1);
-      // this.checkWinner(function(winner){
-      //   console.log('winner', winner);
-      // });
-
-      this.scoreBoard(this.boardGrid);
-      this.minMax(this.toString(this.boardGrid), 0, 1);
+      this.randomComputerMove();
+      this.scoreBoard(this.boardToString(this.boardGrid));
+      this.minMax(this.boardToString(this.boardGrid), 0, 1);
     },
 
     randomComputerMove: function(){
@@ -102,59 +98,6 @@
       }
     },
 
-    // checkWinner: function(callback){
-    //   var playerScoreNeeded = 3;
-    //   var computerScoreNeeded = 12;
-
-    //   var winner;
-
-    //   var _this = this;
-
-    //   var scoreTest = function(score){
-    //     if (score === playerScoreNeeded){
-    //       winner = 'player';
-    //     } else if (score === computerScoreNeeded){
-    //       winner = 'computer';
-    //     }
-    //   };
-
-    //   var score = 0;
-
-    //   var checkRows = function(){
-    //     for (var i = 0; i < 3; i++){
-    //       score = _this.boardGrid[i][0] + _this.boardGrid[i][1] + _this.boardGrid[i][2];
-    //       scoreTest(score);
-    //     }
-    //   };
-
-    //   var checkColumns = function(){
-    //     for (var i = 0; i < 3; i++){
-    //       score = 0;
-    //       for (var j = 0; j < 3; j++){
-    //         score += _this.boardGrid[j][i];
-    //       }
-    //       scoreTest(score);
-    //     }
-    //   };
-
-    //   var checkDiagonals = function(){
-    //     var majorDiagonal = _this.boardGrid[0][2] + _this.boardGrid[1][1] + _this.boardGrid[2][0];
-    //     var minorDiagonal = _this.boardGrid[0][0] + _this.boardGrid[1][1] + _this.boardGrid[2][2];
-
-    //     scoreTest(majorDiagonal);
-    //     scoreTest(minorDiagonal);
-    //   };
-
-    //   checkRows();
-    //   checkColumns();
-    //   checkDiagonals();
-
-    //   if (winner){
-    //     callback(winner);
-    //   } else {
-    //     callback('noWinner');
-    //   }
-    // },
 
     scoreBoard: function(board){
       var score = 0;
@@ -177,7 +120,6 @@
       }
 
       var checkRows = function(){
-        console.log('board', board);
         for (var i = 0; i < 9; i+=3){
           tempScore = Number(board[i]) + Number(board[i+1]) + Number(board[i+2]);
           scoreChange(tempScore);
@@ -210,10 +152,10 @@
 
     },
 
-    toString: function(board) {
+    boardToString: function(board){
       var str = '';
-      for(var i=0; i<board.length; i++) {
-        for(var j=0; j<board[i].length; j++) {
+      for (var i = 0; i < board.length; i++){
+        for (var j = 0; j < board[i].length; j++){
           str += board[i][j];
         }
       }
@@ -231,9 +173,8 @@
       return positions;
     },
 
-    combos: function(source, list, seed) {
+    combos: function(source, list, seed){
       var zeros = this.positionZeros(source);
-      // [2,4,6,7]
       for (var i = 0; i < zeros.length; i++){
         var oneSource = source.slice(0,zeros[i]) + seed + source.slice(zeros[i]+1, source.length);
         list.push(oneSource);
@@ -241,55 +182,44 @@
     },
 
     minMax: function(board, depth, seed){
-      // all combos of a 9 length string
-      // check the score at each
-      //
       // minMax('400100114', 0, 1); return '410100114' bestBoard for seed player
-      console.log('mining the max');
       var score = this.scoreBoard(board);
-      if(depth === 2 || Math.abs(score) > 50) {
+      if (depth === 2 || Math.abs(score) > 50){
         console.log('game over board', board);
         return board;
       } else {
         var listOfCombos = [];
         this.combos(board, listOfCombos, seed);
-        // var listOfCombos = Object.keys(listOfCombos);
         console.log('list combos', listOfCombos);
         var bestScore, bestChild;
-        for(var i=0; i<listOfCombos.length; i++) {
+        // for (var i = 0; i < listOfCombos.length; i++){
+        for (var i = 0; i < 2; i++){
+          console.log('checking option', i);
           var currentChild, currentScore;
-          if(seed === 1) {
+          if (seed === 1){
             console.log('list combo input', listOfCombos[i]);
             currentChild = this.minMax(listOfCombos[i], depth+1, 4);
             console.log('currentChild', currentChild);
             currentScore = this.scoreBoard(currentChild);
-            if(typeof bestScore === 'undefined') {
+            if (typeof bestScore === 'undefined' || bestScore < currentScore){
               bestScore = currentScore;
               bestChild = currentChild;
             }
-            if(bestScore < currentScore) {
-              bestChild = currentChild;
-              bestScore = currentScore;
-            }
-          } else if(seed === 4) {
+          } else if (seed === 4){
             console.log('list combo input', listOfCombos[i]);
             currentChild = this.minMax(listOfCombos[i], depth+1, 1);
             console.log('currentChild', currentChild);
             currentScore = this.scoreBoard(currentChild);
-              // find min
-            if(typeof bestScore === 'undefined') {
+            if (typeof bestScore === 'undefined' || bestScore > currentScore){
               bestScore = currentScore;
               bestChild = currentChild;
-            }
-            if(bestScore > currentScore) {
-              bestChild = currentChild;
-              bestScore = currentScore;
             }
           }
           console.log('best score', bestScore);
         }
         console.log('blank child', currentChild);
         console.log('bestChild', bestChild);
+        console.log('bestScore', bestScore);
         return bestChild;
       }
     }
@@ -319,7 +249,6 @@
     },
 
     render: function(){
-      console.log('rendering');
       var notatedMoves = this.model.notatedMoves();
       for (var key in notatedMoves){
         $(this.el).find('#'+key).html(notatedMoves[key]);
