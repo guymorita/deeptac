@@ -17,11 +17,6 @@
       ];
     },
 
-    allRotations: function(){
-
-    },
-
-
     playerMove: function(position){
       this.recordMove(position, 1);
       this.randomComputerMove();
@@ -186,7 +181,7 @@
       var score = this.scoreBoard(board);
       if (depth === 2 || Math.abs(score) > 50){
         console.log('game over board', board);
-        return board;
+        return score;
       } else {
         var listOfCombos = [];
         this.combos(board, listOfCombos, seed);
@@ -197,30 +192,30 @@
           console.log('checking option', i);
           var currentChild, currentScore;
           if (seed === 1){
-            console.log('list combo input', listOfCombos[i]);
-            currentChild = this.minMax(listOfCombos[i], depth+1, 4);
-            console.log('currentChild', currentChild);
-            currentScore = this.scoreBoard(currentChild);
+            // console.log('list combo input', listOfCombos[i]);
+            currentScore = this.minMax(listOfCombos[i], depth+1, 4);
+            // console.log('currentChild', currentChild);
+            // currentScore = this.scoreBoard(currentChild);
             if (typeof bestScore === 'undefined' || bestScore < currentScore){
               bestScore = currentScore;
               bestChild = currentChild;
             }
           } else if (seed === 4){
-            console.log('list combo input', listOfCombos[i]);
-            currentChild = this.minMax(listOfCombos[i], depth+1, 1);
-            console.log('currentChild', currentChild);
-            currentScore = this.scoreBoard(currentChild);
+            // console.log('list combo input', listOfCombos[i]);
+            currentScore = this.minMax(listOfCombos[i], depth+1, 1);
+            // console.log('currentChild', currentChild);
+            // currentScore = this.scoreBoard(currentChild);
             if (typeof bestScore === 'undefined' || bestScore > currentScore){
               bestScore = currentScore;
               bestChild = currentChild;
             }
           }
-          console.log('best score', bestScore);
+          // console.log('best score', bestScore);
         }
-        console.log('blank child', currentChild);
+        // console.log('blank child', currentChild);
         console.log('bestChild', bestChild);
         console.log('bestScore', bestScore);
-        return bestChild;
+        return bestScore;
       }
     }
 
