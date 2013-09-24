@@ -1,14 +1,12 @@
 html {
   font-family: 'Alegreya', serif;
   font-size: 40px;
+  text-align: center;
 }
 
 .board {
   text-align: center;
-}
-
-.scoreboard {
-  text-align: center;
+  margin-bottom: 40px;
 }
 
 .square {
