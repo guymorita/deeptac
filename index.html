@@ -2,29 +2,36 @@
 
 <html>
   <head>
-    <link rel="stylesheet" href="style.css">
-    <script src="jquery.js"></script>
-    <script src="http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.js"></script>
-    <script src="underscore.js"></script>
-    <script src="backbone.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Alegreya:400,900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="src/style.css">
+    <script src="lib/jquery.js"></script>
+    <script src="lib/underscore.js"></script>
+
+    <script src="lib/backbone.js"></script>
   </head>
   <body>
     <div class="board">
+      <h1>Tic-Tacs</h1>
       <div class="row">
-        <div class="square" id="t0">0</div>
-        <div class="square" id="t1">0</div>
-        <div class="square" id="t2">0</div>
+        <div class="square" id="t0">&nbsp;</div>
+        <div class="square" id="t1">&nbsp;</div>
+        <div class="square" id="t2">&nbsp;</div>
       </div>
       <div class="row">
-        <div class="square" id="t3">0</div>
-        <div class="square" id="t4">0</div>
-        <div class="square" id="t5">0</div>
+        <div class="square" id="t3">&nbsp;</div>
+        <div class="square" id="t4">&nbsp;</div>
+        <div class="square" id="t5">&nbsp;</div>
       </div>
       <div class="row">
-        <div class="square" id="t6">0</div>
-        <div class="square" id="t7">0</div>
-        <div class="square" id="t8">0</div>
+        <div class="square" id="t6">&nbsp;</div>
+        <div class="square" id="t7">&nbsp;</div>
+        <div class="square" id="t8">&nbsp;</div>
       </div>
+    </div>
+    <div class="scoreboard">
+      <h1>Scores</h1>
+      <div class="player">Player: </div>
+      <div class="computer">Computer: </div>
     </div>
     <script src="board.js"></script>
   </body>

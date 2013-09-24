@@ -1,0 +1,24 @@
+html {
+  font-family: 'Alegreya', serif;
+  font-size: 40px;
+}
+
+.board {
+  text-align: center;
+}
+
+.scoreboard {
+  text-align: center;
+}
+
+.square {
+  width: 100px;
+  height: 100px;
+  background-color: lightblue;
+  display: inline-block;
+  border-radius: 5px;
+  margin: 5px;
+  font-size: 50px;
+  text-align: center;
+  line-height: 100px;
+}

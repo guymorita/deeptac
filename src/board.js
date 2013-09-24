@@ -1,27 +1,10 @@
 
 var TTT = {};
 
-TTT.Score = Backbone.Model.extend({
-  defaults: {
-    player: 0,
-    computer: 0,
-    currentGame: 0
-  }
-});
-
 TTT.Board = Backbone.Model.extend({
   initialize: function(){
     _.bindAll(this, 'newBoard', 'notatedMoves', 'recordMove', 'moveCombinations');
     this.newBoard();
-    this.set('score', new TTT.Score({}));
-    this.on('gameOver', function(){
-      var that = this;
-      setTimeout(function(){
-        that.newBoard();
-        that.get('score').attributes.currentGame++;
-        that.trigger('clearboard');
-      }, 1000);
-    });
   },
 
   newBoard: function(){
@@ -63,27 +46,12 @@ TTT.Board = Backbone.Model.extend({
     }
   },
 
-  checkScore: function(){
-    var currentGridScore = this.scoreBoard(this.boardGrid);
-    var sumPlayerScores = this.get('score').attributes.computer + this.get('score').attributes.player;
-    if (sumPlayerScores === this.get('score').attributes.currentGame){
-      if (currentGridScore < -50){
-        this.get('score').attributes.computer++;
-        this.get('score').trigger('change');
-        this.trigger('gameOver');
-      } else if (currentGridScore > 50) {
-        this.get('score').attributes.player++;
-        this.get('score').trigger('change');
-        this.trigger('gameOver');
-      }
+  notatedMoves: function(){
+    var moves = {};
+    for (var i = 0; i < 9; i++){
+      moves['t'+i] = this.boardGrid[i];
     }
-  },
-
-  checkFullBoard: function(){
-    var zeros = this.zeroPositions(this.boardGrid);
-    if (!zeros.length){
-      this.trigger('gameOver');
-    }
+    return moves;
   },
 
   recordMove: function(position, player){
@@ -92,20 +60,10 @@ TTT.Board = Backbone.Model.extend({
       var startBoard = this.boardGrid.slice(0 , Number(position));
       var endBoard = this.boardGrid.slice(Number(position) + 1, 9);
       this.boardGrid = '' + startBoard + player + endBoard;
-      this.checkScore();
-      this.checkFullBoard();
       this.trigger('moved');
     } else {
       throw 'Space taken';
     }
-  },
-
-  notatedMoves: function(){
-    var moves = {};
-    for (var i = 0; i < 9; i++){
-      moves['t'+i] = this.boardGrid[i];
-    }
-    return moves;
   },
 
   scoreBoard: function(board){
@@ -157,9 +115,10 @@ TTT.Board = Backbone.Model.extend({
   checkDiagonals();
 
   return score;
+
   },
 
-  zeroPositions: function(str){
+  positionZeros: function(str){
     var positions = [];
     for (var i = 0; i < str.length; i++){
       if (str[i] === '0'){
@@ -170,12 +129,13 @@ TTT.Board = Backbone.Model.extend({
   },
 
   moveCombinations: function(source, list, seed){
-    var zeros = this.zeroPositions(source);
+    var zeros = this.positionZeros(source);
     for (var i = 0; i < zeros.length; i++){
       var oneSource = source.slice(0,zeros[i]) + seed + source.slice(zeros[i]+1, source.length);
       list.push(oneSource);
     }
   },
+
 
   minMax: function(board, depth, seed, isFirst){
     // minMax('400100114', 0, 1); return '410100114' bestBoard for seed player
@@ -216,12 +176,8 @@ TTT.BoardView = Backbone.View.extend({
   el: $('body'),
 
   initialize: function(){
-    this.render();
     this.model.on('moved', function(){
-      this.renderMoves();
-    }, this);
-    this.model.on('clearboard', function(){
-      this.clearBoard();
+      this.render();
     }, this);
   },
 
@@ -234,13 +190,7 @@ TTT.BoardView = Backbone.View.extend({
     this.model.playerMove(position[1]);
   },
 
-  clearBoard: function(){
-    for (var i = 0 ; i < 9; i++){
-      $(this.el).find('#t'+i).html('&nbsp;');
-    }
-  },
-
-  renderMoves: function(){
+  render: function(){
     var notatedMoves = this.model.notatedMoves();
     for (var key in notatedMoves){
       if (notatedMoves[key] === '1'){
@@ -249,26 +199,15 @@ TTT.BoardView = Backbone.View.extend({
         $(this.el).find('#'+key).html('O');
       }
     }
-  },
-
-  render: function(){
-    $('.scoreboard').html(new TTT.ScoreView({model: this.model.get('score')}).el);
   }
-});
 
+
+
+});
 TTT.ScoreView = Backbone.View.extend({
   initialize: function(){
-    this.render();
-    this.model.on('change', function(){
-      this.render();
-    }, this);
-  },
 
-  render: function(){
-    $(this.el).html('');
-    $(this.el).append('<div class="player">Player: '+ this.model.attributes.player +'</div>');
-    $(this.el).append('<div class="player">Computer: '+ this.model.attributes.computer +'</div>');
   }
-});
+})
 var board = new TTT.Board({});
 var boardView = new TTT.BoardView({model: board});
