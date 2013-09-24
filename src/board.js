@@ -13,11 +13,13 @@ TTT.Board = Backbone.Model.extend({
   initialize: function(){
     _.bindAll(this, 'newBoard', 'notatedMoves', 'recordMove', 'moveCombinations');
     this.newBoard();
+    this.gameScored = false;
     this.set('score', new TTT.Score({}));
     this.on('gameOver', function(){
       var that = this;
       setTimeout(function(){
         that.newBoard();
+        that.gameScored = false;
         that.get('score').attributes.currentGame++;
         that.trigger('clearboard');
       }, 1000);
@@ -65,13 +67,15 @@ TTT.Board = Backbone.Model.extend({
 
   checkScore: function(){
     var currentGridScore = this.scoreBoard(this.boardGrid);
-    var sumPlayerScores = this.get('score').attributes.computer + this.get('score').attributes.player;
-    if (sumPlayerScores === this.get('score').attributes.currentGame){
+    // var sumPlayerScores = this.get('score').attributes.computer + this.get('score').attributes.player;
+    if (!this.gameScored){
       if (currentGridScore < -50){
+        this.gameScored = true;
         this.get('score').attributes.computer++;
         this.get('score').trigger('change');
         this.trigger('gameOver');
       } else if (currentGridScore > 50) {
+        this.gameScored = true;
         this.get('score').attributes.player++;
         this.get('score').trigger('change');
         this.trigger('gameOver');
