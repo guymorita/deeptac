@@ -14,14 +14,19 @@ TTT.Board = Backbone.Model.extend({
     _.bindAll(this, 'newBoard', 'notatedMoves', 'recordMove', 'moveCombinations');
     this.newBoard();
     this.gameScored = false;
+    this.playerFirst = true;
     this.set('score', new TTT.Score({}));
     this.on('gameOver', function(){
       var that = this;
       setTimeout(function(){
-        that.newBoard();
+        that.trigger('clearboard');
         that.gameScored = false;
         that.get('score').attributes.currentGame++;
-        that.trigger('clearboard');
+        that.newBoard();
+        that.playerFirst = (that.playerFirst) ? false : true;
+        if (!that.playerFirst){
+          that.smartComputerMove();
+        }
       }, 1000);
     });
   },
