@@ -4,8 +4,7 @@ var TTT = {};
 TTT.Score = Backbone.Model.extend({
   defaults: {
     player: 0,
-    computer: 0,
-    currentGame: 0
+    computer: 0
   }
 });
 
@@ -21,7 +20,6 @@ TTT.Board = Backbone.Model.extend({
       setTimeout(function(){
         that.trigger('clearboard');
         that.gameScored = false;
-        that.get('score').attributes.currentGame++;
         that.newBoard();
         that.playerFirst = (that.playerFirst) ? false : true;
         if (!that.playerFirst){
