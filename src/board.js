@@ -23,7 +23,7 @@ TTT.Board = Backbone.Model.extend({
         that.newBoard();
         that.playerFirst = (that.playerFirst) ? false : true;
         if (!that.playerFirst){
-          that.smartComputerMove();
+          that.computerMove();
         }
       }, 1000);
     });
@@ -35,26 +35,29 @@ TTT.Board = Backbone.Model.extend({
 
   playerMove: function(position){
     this.recordMove(position, 1);
-    // this.randomComputerMove();
-    this.smartComputerMove();
+    this.computerMove();
     this.scoreBoard(this.boardGrid);
-    this.minMax(this.boardGrid, 0, 1, true);
+    this.miniMax(this.boardGrid, 0, 1, true);
   },
 
-  randomComputerMove: function(){
-    var position = Math.floor(Math.random()*9);
-    try {
-      this.recordMove(position, 4);
-    } catch (e){
-      this.randomComputerMove();
-      console.log('error', e);
+  recordMove: function(position, player){
+    var gridPosition = this.boardGrid[position];
+    if (gridPosition === '0'){
+      var startBoard = this.boardGrid.slice(0 , Number(position));
+      var endBoard = this.boardGrid.slice(Number(position) + 1, 9);
+      this.boardGrid = '' + startBoard + player + endBoard;
+      this.checkScore();
+      this.checkFullBoard();
+      this.trigger('moved');
+    } else {
+      throw 'Space taken';
     }
   },
 
-  smartComputerMove: function(){
-    var nextComputerMove = this.minMax(this.boardGrid, 0, 4, true);
-    var nextMove = this.translateNewMove(nextComputerMove);
-    this.recordMove(nextMove.position, nextMove.player);
+  computerMove: function(){
+    var nextBoardPosition = this.miniMax(this.boardGrid, 0, 4, true);
+    var nextComputerMove = this.translateNewMove(nextBoardPosition);
+    this.recordMove(nextComputerMove.position, nextComputerMove.player);
   },
 
   translateNewMove: function(newBoard){
@@ -70,7 +73,6 @@ TTT.Board = Backbone.Model.extend({
 
   checkScore: function(){
     var currentGridScore = this.scoreBoard(this.boardGrid);
-    // var sumPlayerScores = this.get('score').attributes.computer + this.get('score').attributes.player;
     if (!this.gameScored){
       if (currentGridScore < -50){
         this.gameScored = true;
@@ -90,20 +92,6 @@ TTT.Board = Backbone.Model.extend({
     var zeros = this.zeroPositions(this.boardGrid);
     if (!zeros.length){
       this.trigger('gameOver');
-    }
-  },
-
-  recordMove: function(position, player){
-    var gridPosition = this.boardGrid[position];
-    if (gridPosition === '0'){
-      var startBoard = this.boardGrid.slice(0 , Number(position));
-      var endBoard = this.boardGrid.slice(Number(position) + 1, 9);
-      this.boardGrid = '' + startBoard + player + endBoard;
-      this.checkScore();
-      this.checkFullBoard();
-      this.trigger('moved');
-    } else {
-      throw 'Space taken';
     }
   },
 
@@ -184,8 +172,8 @@ TTT.Board = Backbone.Model.extend({
     }
   },
 
-  minMax: function(board, depth, seed, isFirst){
-    // minMax('400100114', 0, 1); return '410100114' bestBoard for seed player
+  miniMax: function(board, depth, seed, isFirst){
+    // miniMax('400100114', 0, 1, true); return '410100114' bestBoard for seed player
     isFirst = isFirst || false;
     var score = this.scoreBoard(board);
     if (depth === 2 || Math.abs(score) > 50){
@@ -197,7 +185,7 @@ TTT.Board = Backbone.Model.extend({
       for (var i = 0; i < listOfCombos.length; i++){
         var currentChild, currentScore;
         if (seed === 1){
-          currentScore = this.minMax(listOfCombos[i], depth+1, 4, false);
+          currentScore = this.miniMax(listOfCombos[i], depth+1, 4, false);
           if (typeof bestScore === 'undefined' || bestScore < currentScore){
             bestScore = currentScore;
             if (isFirst){
@@ -205,7 +193,7 @@ TTT.Board = Backbone.Model.extend({
             }
           }
         } else if (seed === 4){
-          currentScore = this.minMax(listOfCombos[i], depth+1, 1, false);
+          currentScore = this.miniMax(listOfCombos[i], depth+1, 1, false);
           if (typeof bestScore === 'undefined' || bestScore > currentScore){
             bestScore = currentScore;
             if (isFirst){
@@ -225,7 +213,7 @@ TTT.BoardView = Backbone.View.extend({
   initialize: function(){
     this.render();
     this.model.on('moved', function(){
-      this.renderMoves();
+      this.renderMove();
     }, this);
     this.model.on('clearboard', function(){
       this.clearBoard();
@@ -247,7 +235,7 @@ TTT.BoardView = Backbone.View.extend({
     }
   },
 
-  renderMoves: function(){
+  renderMove: function(){
     var notatedMoves = this.model.notatedMoves();
     for (var key in notatedMoves){
       if (notatedMoves[key] === '1'){
@@ -277,5 +265,6 @@ TTT.ScoreView = Backbone.View.extend({
     $(this.el).append('<div class="player">Computer: '+ this.model.attributes.computer +'</div>');
   }
 });
+
 var board = new TTT.Board({});
 var boardView = new TTT.BoardView({model: board});
